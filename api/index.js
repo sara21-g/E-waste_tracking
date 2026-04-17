@@ -76,16 +76,18 @@ app.use((err, req, res, next) => {
     });
 });
 
-// Start server
-app.listen(PORT, () => {
-    console.log(`
-    ╔════════════════════════════════════════╗
-    ║   ♻️  E-Waste Tracking API Started    ║
-    ╠════════════════════════════════════════╣
-    ║   Server: http://localhost:${PORT}        ║
-    ║   Health: http://localhost:${PORT}/api/health ║
-    ╚════════════════════════════════════════╝
-    `);
-});
+// Start server only if not running on Vercel
+if (!process.env.VERCEL) {
+    app.listen(PORT, () => {
+        console.log(`
+        ╔════════════════════════════════════════╗
+        ║   ♻️  E-Waste Tracking API Started    ║
+        ╠════════════════════════════════════════╣
+        ║   Server: http://localhost:${PORT}        ║
+        ║   Health: http://localhost:${PORT}/api/health ║
+        ╚════════════════════════════════════════╝
+        `);
+    });
+}
 
 module.exports = app;
