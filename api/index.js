@@ -2,7 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
-const connectDB = require('./config/db');
+const connectDB = require('../src/config/db');
 
 // Connect to MongoDB
 connectDB();
@@ -25,8 +25,8 @@ app.use((req, res, next) => {
 });
 
 // Routes
-const authRoutes = require('./routes/auth.routes');
-const pickupRoutes = require('./routes/pickup.routes');
+const authRoutes = require('../src/routes/auth.routes');
+const pickupRoutes = require('../src/routes/pickup.routes');
 
 app.use('/api/auth', authRoutes);
 app.use('/api/pickup', pickupRoutes);
