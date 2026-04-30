@@ -1,0 +1,8 @@
+{
+  "name": "local-blockchain",
+  "version": "1.0.0",
+  "type": "module",
+  "devDependencies": {
+    "hardhat": "^3.4.2"
+  }
+}

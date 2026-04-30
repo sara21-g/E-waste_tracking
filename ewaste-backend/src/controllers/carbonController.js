@@ -1,6 +1,7 @@
 const { CarbonCredit, Reward } = require('../models/index');
 const User = require('../models/User');
 const carbonService = require('../services/carbonService');
+const blockchainService = require('../blockchain/blockchainService');
 
 // @desc    Get user's carbon credit history
 // @route   GET /api/carbon/history
@@ -147,6 +148,10 @@ exports.redeemPoints = async (req, res, next) => {
     }
     reward.redemptionCount += 1;
     await reward.save();
+
+    // Redeem points on blockchain
+    blockchainService.redeemUserPoints(user._id.toString(), reward.pointsRequired);
+
 
     res.status(200).json({
       success: true,

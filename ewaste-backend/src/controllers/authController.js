@@ -1,6 +1,7 @@
 const User = require('../models/User');
 const emailService = require('../services/emailService');
 const logger = require('../utils/logger');
+const blockchainService = require('../blockchain/blockchainService');
 
 // Helper: send tokens response
 const sendTokenResponse = async (user, statusCode, res, message = 'Success') => {
@@ -55,7 +56,11 @@ exports.register = async (req, res, next) => {
       logger.warn(`Email send failed for ${user.email}: ${emailErr.message}`);
     }
 
+    // Register user on the blockchain (asynchronous, non-blocking)
+    blockchainService.registerUserOnChain(user._id.toString(), user.name);
+
     await sendTokenResponse(user, 201, res, 'Registration successful. Please verify your email.');
+
   } catch (err) {
     next(err);
   }

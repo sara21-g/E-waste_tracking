@@ -6,6 +6,7 @@ const { CarbonCredit, Notification } = require('../models/index');
 const carbonService = require('../services/carbonService');
 const notificationService = require('../services/notificationService');
 const emailService = require('../services/emailService');
+const blockchainService = require('../blockchain/blockchainService');
 
 // @desc    Schedule a new pickup
 // @route   POST /api/pickups
@@ -236,6 +237,9 @@ exports.updatePickupStatus = async (req, res, next) => {
         type: 'points_earned',
         data: { pickupId: pickup._id, points, carbonReduced }
       });
+
+      // Award points on blockchain
+      blockchainService.awardUserPoints(pickup.user.toString(), points, carbonReduced);
     }
 
     if (status === 'cancelled') {
