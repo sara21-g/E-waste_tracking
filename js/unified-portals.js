@@ -118,6 +118,61 @@ function handleAgentLogout() {
     document.getElementById('agentLoginScreen').classList.add('active');
 }
 
+// --- BLOCKCHAIN TEST SETUP ---
+async function generateTestPickup() {
+    const btn = document.getElementById('demoPickupBtn');
+    const msg = document.getElementById('demoPickupMsg');
+    btn.textContent = 'Generating...';
+    msg.style.color = '#333';
+    
+    try {
+        // 1. Create a fake user email to register
+        const testEmail = `test_${Date.now()}@ewaste.com`;
+        msg.innerHTML = `Registering ${testEmail}...`;
+        
+        // Register user (this triggers blockchain registration)
+        const regRes = await fetch(`${API_URL}/auth/register`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name: 'Blockchain Test User', email: testEmail, password: 'password123', role: 'household' })
+        });
+        const regData = await regRes.json();
+        
+        if (!regData.success) throw new Error(regData.message || 'Registration failed');
+        
+        const userToken = regData.data.accessToken;
+        msg.innerHTML = `User registered! Creating pickup...`;
+        
+        // 2. Schedule a pickup for that user
+        const pickupRes = await fetch(`${API_URL}/pickups`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${userToken}` },
+            body: JSON.stringify({
+                items: [{ wasteType: '1', quantity: 1, condition: 'good', actualWeight: 5 }],
+                scheduledDate: new Date().toISOString(),
+                pickupAddress: { street: '123 Main', city: 'Test City', state: 'TS', zipCode: '12345', coordinates: [0, 0] }
+            })
+        });
+        const pickupData = await pickupRes.json();
+        
+        if (!pickupData.success) throw new Error(pickupData.message || 'Pickup creation failed');
+        
+        const trackingId = pickupData.data._id || pickupData.data.id || pickupData.data.pickupId;
+        
+        msg.innerHTML = `<span style="color:green;font-weight:bold;">Success!</span><br>Copy this ID: <code style="user-select:all;background:#eee;padding:2px 4px;">${trackingId}</code>`;
+        
+        // Auto-fill the form
+        document.getElementById('updateTrackingId').value = trackingId;
+        document.getElementById('newStatus').value = 'processed';
+        
+    } catch (e) {
+        msg.innerHTML = `<span style="color:red">Error: ${e.message}</span>`;
+    } finally {
+        btn.textContent = 'Generate Test Pickup ID';
+    }
+}
+
+
 // --- ADMIN PORTAL ---
 let adminToken = localStorage.getItem('adminToken');
 if (adminToken) verifyAdminToken();
@@ -133,16 +188,16 @@ async function handleAdminLogin(e) {
     err.style.display = 'none';
     
     try {
-        const res = await fetch(`${API_URL}/auth/admin/login`, {
+        const res = await fetch(`${API_URL}/auth/login`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ email, password })
         });
         const data = await res.json();
-        if (data.success) {
-            adminToken = data.token;
+        if (data.success && data.data && data.data.accessToken) {
+            adminToken = data.data.accessToken;
             localStorage.setItem('adminToken', adminToken);
-            document.getElementById('adminPanelName').textContent = data.admin.fullName;
+            document.getElementById('adminPanelName').textContent = data.data.user.name;
             showAdminDashboard();
             loadAdminDashboardData();
         } else {
@@ -167,10 +222,10 @@ async function handleStatusUpdate(e) {
     
     msg.innerHTML = 'Updating...';
     try {
-        const res = await fetch(`${API_URL}/pickup/status/${trackingId}`, {
-            method: 'PUT',
+        const res = await fetch(`${API_URL}/pickups/${trackingId}/status`, {
+            method: 'PATCH',
             headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${adminToken}` },
-            body: JSON.stringify({ status, location, notes, updatedBy: 'Admin' })
+            body: JSON.stringify({ status, location, notes })
         });
         const data = await res.json();
         if (data.success) {

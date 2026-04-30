@@ -591,10 +591,10 @@
                                 <label>New Status</label>
                                 <select class="form-input" id="newStatus" required>
                                     <option value="">Select Status</option>
-                                    <option value="AT_FACILITY">Arrived at Facility</option>
-                                    <option value="PROCESSING">Processing</option>
-                                    <option value="RECYCLED">Recycled</option>
-                                    <option value="CREDITS_ISSUED">Credits Issued</option>
+                                    <option value="assigned">Assigned</option>
+                                    <option value="collected">Collected</option>
+                                    <option value="processed">Processed (Triggers Blockchain!)</option>
+                                    <option value="cancelled">Cancelled</option>
                                 </select>
                             </div>
                             <div class="form-group">
@@ -608,6 +608,12 @@
                             <button type="submit" class="btn btn-success btn-block">Update Status</button>
                         </form>
                         <div id="updateMessage" class="message" style="margin-top:12px"></div>
+                        <div style="margin-top:20px; padding:15px; background:#f8f9fa; border-radius:8px; border:1px solid #ddd;">
+                            <h3 style="margin-bottom:10px; font-size:14px;">🧪 Blockchain Test Setup</h3>
+                            <p style="font-size:12px; margin-bottom:10px; color:#666;">Clicking this will automatically create a test user and schedule a pickup so you have a valid Tracking ID to process above.</p>
+                            <button onclick="generateTestPickup()" id="demoPickupBtn" class="btn btn-outline btn-block" style="border-color:#2a9d8f; color:#2a9d8f;">Generate Test Pickup ID</button>
+                            <div id="demoPickupMsg" style="margin-top:8px; font-size:12px; font-family:monospace; word-break:break-all;"></div>
+                        </div>
                     </div>
 
                     <!-- Search Pickup -->
